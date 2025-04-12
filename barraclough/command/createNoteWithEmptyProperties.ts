@@ -2,14 +2,15 @@ import { App, FrontMatterCache, normalizePath, Notice, TFile } from "obsidian";
 import { getDisplayDate } from "../util/time";
 import { openFileInNewTab } from "../util/leaf-file";
 import { addEmptyProperties, sortProperties } from "../util/properties";
+import {
+	baseInternalLinkProperties,
+	allProperties,
+	baseProperties,
+	baseExternalLinkProperties,
+} from "barraclough/propertySchemas/schemas";
 
-
-export async function createNote(app: App, relPath: string) {
-
-}
-
-export async function createNoteWithEmptyProperties(app: App) {
-    // path
+async function createNoteFile(app: App): Promise<TFile> {
+	// path
 	const root = app.vault.getRoot();
 	if (!root) {
 		console.error(
@@ -20,14 +21,14 @@ export async function createNoteWithEmptyProperties(app: App) {
 	}
 	const relPath = normalizePath(`${root.path}n/untitled`); // strips leading slash
 	const absPath = app.vault.getAvailablePath(relPath, "md");
-    console.log("BC |", { absPath, relPath });
+	console.log("BC |", { absPath, relPath });
 
 	// file
 	let file: TFile | null = null;
 	try {
 		file = await app.vault.create(absPath, "");
 	} catch (e) {
-		console.log("BC / createNoteWithEmptyProperties:", {
+		console.log("BC / createNote:", {
 			absPath,
 			relPath,
 			isValid: this.app.vault.checkPath(absPath),
@@ -43,17 +44,76 @@ export async function createNoteWithEmptyProperties(app: App) {
 			"BC / createNoteWithEmptyProperties: failed to create file"
 		);
 	}
+	return file;
+}
 
-	// frontmatter  
+async function addCreatedToFrontmatter(app: App, file: TFile) {
 	const displayDate = getDisplayDate(new Date());
-	// console.log("SF |", { file, displayDate });
-	app.fileManager.processFrontMatter(file, (fm: FrontMatterCache) => {
+	await app.fileManager.processFrontMatter(file, (fm: FrontMatterCache) => {
 		fm.created = displayDate;
 	});
-    addEmptyProperties(app, file);
-    sortProperties(app, file);
+}
 
-	// open & focus
+async function addEmptyPropertiesToActiveFile(
+	app: App,
+	properties: Record<string, any>
+) {
+	const file = app.workspace.getActiveFile();
+	if (!file) {
+		console.error(
+			"Barraclough | addEmptyPropertiesToActiveFile | No active file"
+		);
+		new Notice("No active file");
+		return;
+	}
+	addEmptyProperties(app, file, properties);
+	sortProperties(app, file);
+}
+
+// addEmptyProperties(app, file);
+// sortProperties(app, file);
+async function createNoteWithEmptyProperties(
+	app: App,
+	properties: Record<string, any>
+) {
+	const file = await createNoteFile(app);
+	await addCreatedToFrontmatter(app, file);
+	addEmptyProperties(app, file, properties);
+	sortProperties(app, file);
 	const leaf = await openFileInNewTab(app, file);
 	return { file, leaf };
+}
+
+// create with empty properties
+export function createNoteWithBaseEmptyProperties(app: App) {
+	return createNoteWithEmptyProperties(app, baseProperties);
+}
+
+export function createNoteWithExtendedEmptyProperties(app: App) {
+	return createNoteWithEmptyProperties(app, {
+		...baseProperties,
+		...baseExternalLinkProperties,
+		...baseInternalLinkProperties,
+	});
+}
+
+export function createNoteWithAllEmptyProperties(app: App) {
+	return createNoteWithEmptyProperties(app, allProperties);
+}
+
+// add empty properties to active file
+export function addBaseEmptyPropertiesToActiveFile(app: App) {
+	return addEmptyPropertiesToActiveFile(app, baseProperties);
+}
+
+export function addExtendedEmptyPropertiesToActiveFile(app: App) {
+	return addEmptyPropertiesToActiveFile(app, {
+		...baseProperties,
+		...baseExternalLinkProperties,
+		...baseInternalLinkProperties,
+	});
+}
+
+export function addAllEmptyPropertiesToActiveFile(app: App) {
+	return addEmptyPropertiesToActiveFile(app, allProperties);
 }

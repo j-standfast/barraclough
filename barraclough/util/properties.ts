@@ -1,4 +1,4 @@
-import { App, TFile, FrontMatterCache, Notice } from "obsidian";
+import { App, TFile, FrontMatterCache } from "obsidian";
 import { sortByKey } from "./toolbelt";
 import { allProperties } from "../propertySchemas/schemas";
 
@@ -13,9 +13,10 @@ export const sortProperties = (app: App, file: TFile) => {
 	});
 };
 
-export const addEmptyProperties = (app: App, file: TFile) => {
+export const addEmptyProperties = (app: App, file: TFile, properties?: Record<string, any>) => {
+  properties = properties || allProperties;
 	app.fileManager.processFrontMatter(file, (fm: FrontMatterCache) => {
-		for (const [p, s] of Object.entries(allProperties)) {
+		for (const [p, s] of Object.entries(properties)) {
 			if (
 				p in fm &&
 				fm[p] !== null &&

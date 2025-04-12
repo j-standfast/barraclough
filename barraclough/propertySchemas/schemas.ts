@@ -49,7 +49,7 @@ export const weekdaySchema = {
 	description: "Weekday",
 }; // TODO: add format
 
-export const baseCoreProperties = {
+export const baseProperties = {
 	aliases: {
 		...aliasListSchema,
 		description: "List of aliases",
@@ -70,22 +70,18 @@ export const baseCoreProperties = {
 		...urlListSchema,
 		description: "List of primary (generic) URLs referenced by the note",
 	},
-	srcURLsSeeAlso: {
-		...urlListSchema,
-		description: "List of secondary (generic) URLs referenced by the note",
-	},
 	relsTopic: {
 		...relatedNoteListSchema,
 		description: "List of topic notes (akin to parent, but looser)",
 	},
-	relsSeeAlso: {
-		...relatedNoteListSchema,
-		description: "List of (loosely) related notes",
-	},
 };
 
 export const baseExternalLinkProperties = {
-	srcChapters: {
+  srcURLsSeeAlso: {
+    ...urlListSchema,
+    description: "List of secondary (generic) URLs referenced by the note",
+  },
+  srcChapters: {
 		...chapterListSchema,
 		description: "List of [source, associated chapter(s)] pairs",
 	},
@@ -100,7 +96,11 @@ export const baseExternalLinkProperties = {
 };
 
 export const baseInternalLinkProperties = {
-	relsChild: {
+  relsSeeAlso: {
+    ...relatedNoteListSchema,
+    description: "List of (loosely) related notes",
+  },
+  relsChild: {
 		...relatedNoteListSchema,
 		description: "List of child notes",
 	},
@@ -197,42 +197,50 @@ export const periodExtraProperties = {
 	},
 };
 
-export const baseProperties = {
-	...baseCoreProperties,
+export const allProperties = {
+  ...baseProperties,
 	...baseExternalLinkProperties,
 	...baseInternalLinkProperties,
-};
-
-export const codeProperties = {
-	...baseProperties,
-	...codeExtraProperties,
-};
-
-export const packageProperties = {
-	...codeProperties,
-	...packageExtraProperties,
-};
-
-export const packageVersionProperties = {
-  ...packageProperties,
-  ...packageVersionExtraProperties,
-}
-
-export const problemProperties = {
-	...baseProperties,
-	...problemExtraProperties,
-};
-
-export const periodProperties = {
-	...baseProperties,
-	...periodExtraProperties,
-};
-
-export const allProperties = {
-	...baseProperties,
 	...codeExtraProperties,
 	...packageExtraProperties,
   ...packageVersionExtraProperties,
 	...problemExtraProperties,
   ...periodExtraProperties,
 };
+
+
+
+
+// export const baseProperties = {
+// 	...baseCoreProperties,
+// 	...baseExternalLinkProperties,
+// 	...baseInternalLinkProperties,
+// };
+
+// export const codeProperties = {
+// 	...baseProperties,
+// 	...codeExtraProperties,
+// };
+
+
+// export const packageProperties = {
+// 	...codeProperties,
+// 	...packageExtraProperties,
+// };
+
+
+// export const packageVersionProperties = {
+//   ...packageProperties,
+//   ...packageVersionExtraProperties,
+// }
+
+
+// export const problemProperties = {
+// 	...baseProperties,
+// 	...problemExtraProperties,
+// };
+
+// export const periodProperties = {
+// 	...baseProperties,
+// 	...periodExtraProperties,
+// };
